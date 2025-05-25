@@ -23,7 +23,10 @@ from diffusers.configuration_utils import ConfigMixin, register_to_config
 from diffusers.utils import BaseOutput, logging
 from diffusers.models.embeddings import TimestepEmbedding, Timesteps
 from diffusers.models.modeling_utils import ModelMixin
-from diffusers.models.transformer_temporal import TransformerTemporalModel
+# Original (causing error)
+# from diffusers.models.transformer_temporal import TransformerTemporalModel
+# Updated (hypothetical, check actual path)
+from diffusers.models.temporal import TransformerTemporalModel
 from .unet_3d_blocks import (
     CrossAttnDownBlock3D,
     CrossAttnUpBlock3D,
