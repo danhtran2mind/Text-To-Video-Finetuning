@@ -26,7 +26,7 @@ from diffusers.models.modeling_utils import ModelMixin
 # Original (causing error)
 # from diffusers.models.transformer_temporal import TransformerTemporalModel
 # Updated (hypothetical, check actual path)
-from diffusers.models.temporal import TransformerTemporalModel
+from diffusers import TransformerTemporalModel
 from .unet_3d_blocks import (
     CrossAttnDownBlock3D,
     CrossAttnUpBlock3D,
