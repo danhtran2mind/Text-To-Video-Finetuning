@@ -7,6 +7,7 @@ import os
 import random
 import gc
 import copy
+import numpy as np
 
 from typing import Dict, Optional, Tuple
 from omegaconf import OmegaConf
@@ -97,12 +98,40 @@ def extend_datasets(datasets, dataset_items, extend=False):
                     extended.append(item)
 
 def export_to_video(video_frames, output_video_path, fps):
+    # Ensure video_frames is a list of NumPy arrays
+    if not isinstance(video_frames, (list, tuple)):
+        raise ValueError("video_frames must be a list or tuple of frames")
+
+    # Process the first frame to get dimensions
+    frame = video_frames[0]
+    
+    # Handle potential batch dimension or unexpected shape
+    while len(frame.shape) > 3:
+        frame = frame.squeeze(0)  # Remove batch dimensions
+    if len(frame.shape) != 3 or frame.shape[-1] not in (3, 4):
+        raise ValueError(f"Each frame must have shape (height, width, 3), got {frame.shape}")
+
+    h, w, _ = frame.shape
+    
+    # Initialize video writer
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-    h, w, _ = video_frames[0].shape
     video_writer = cv2.VideoWriter(output_video_path, fourcc, fps=fps, frameSize=(w, h))
-    for i in range(len(video_frames)):
-        img = cv2.cvtColor(video_frames[i], cv2.COLOR_RGB2BGR)
-        video_writer.write(img)
+    
+    # Write each frame
+    for frame in video_frames:
+        # Remove batch dimensions if present
+        while len(frame.shape) > 3:
+            frame = frame.squeeze(0)
+        
+        # Ensure frame is uint8 and RGB
+        if frame.dtype != np.uint8:
+            frame = (frame * 255).astype(np.uint8) if frame.max() <= 1.0 else frame.astype(np.uint8)
+        
+        # Convert RGB to BGR for OpenCV
+        frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        video_writer.write(frame_bgr)
+    
+    video_writer.release()
 
 def create_output_folders(output_dir, config):
     now = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
