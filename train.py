@@ -125,7 +125,7 @@ def load_primary_models(pretrained_model_path):
 
 def unet_and_text_g_c(unet, text_encoder, unet_enable, text_enable):
     # Enable gradient checkpointing for UNet
-    unet.set_gradient_checkpointing(unet_enable)
+    unet._set_gradient_checkpointing(value=unet_enable)
     
     # Enable gradient checkpointing for text encoder (CLIPTextModel)
     if text_enable:
