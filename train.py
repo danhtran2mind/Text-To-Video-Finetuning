@@ -36,7 +36,6 @@ from diffusers.models.attention_processor import AttnProcessor2_0, Attention
 from diffusers.models.attention import BasicTransformerBlock
 
 from transformers import CLIPTextModel, CLIPTokenizer
-from transformers.models.clip.modeling_clip import CLIPEncoder
 from utils.dataset import VideoJsonDataset, SingleVideoDataset, \
     ImageDataset, VideoFolderDataset, CachedDataset
 from einops import rearrange, repeat
@@ -125,8 +124,14 @@ def load_primary_models(pretrained_model_path):
     return noise_scheduler, tokenizer, text_encoder, vae, unet
 
 def unet_and_text_g_c(unet, text_encoder, unet_enable, text_enable):
-    unet._set_gradient_checkpointing(value=unet_enable)
-    text_encoder._set_gradient_checkpointing(CLIPEncoder, value=text_enable)
+    # Enable gradient checkpointing for UNet
+    unet.set_gradient_checkpointing(unet_enable)
+    
+    # Enable gradient checkpointing for text encoder (CLIPTextModel)
+    if text_enable:
+        text_encoder.gradient_checkpointing = True
+    else:
+        text_encoder.gradient_checkpointing = False
 
 def freeze_models(models_to_freeze):
     for model in models_to_freeze:
@@ -217,7 +222,7 @@ def create_optimizer_params(model_list, lr):
             optimizer_params.append(params)
             continue
             
-        if is_lora and  condition and not isinstance(model, list):
+        if is_lora and condition and not isinstance(model, list):
             for n, p in model.named_parameters():
                 if 'lora' in n:
                     params = create_optim_params(n, p, lr, extra_params)
