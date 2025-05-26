@@ -8,12 +8,12 @@ import random
 import gc
 import copy
 import numpy as np
+import torch
 
 from typing import Dict, Optional, Tuple
 from omegaconf import OmegaConf
 
 import cv2
-import torch
 import torch.nn.functional as F
 import torch.utils.checkpoint
 import torchvision.transforms as T
@@ -98,7 +98,20 @@ def extend_datasets(datasets, dataset_items, extend=False):
                     extended.append(item)
 
 def export_to_video(video_frames, output_video_path, fps):
-    # Ensure video_frames is a list of NumPy arrays
+    # Convert tensor/array to list of frames if necessary
+    if isinstance(video_frames, (np.ndarray, torch.Tensor)):
+        if isinstance(video_frames, torch.Tensor):
+            video_frames = video_frames.cpu().numpy()
+        # Handle shapes like (num_frames, height, width, 3) or (1, num_frames, height, width, 3)
+        while len(video_frames.shape) > 4:
+            video_frames = video_frames.squeeze(0)  # Remove batch dimensions
+        if len(video_frames.shape) == 4:
+            # Shape: (num_frames, height, width, 3)
+            video_frames = [video_frames[i] for i in range(video_frames.shape[0])]
+        else:
+            raise ValueError(f"Unexpected video_frames shape: {video_frames.shape}")
+
+    # Ensure video_frames is a list or tuple
     if not isinstance(video_frames, (list, tuple)):
         raise ValueError("video_frames must be a list or tuple of frames")
 
