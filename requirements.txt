@@ -15,4 +15,6 @@ safetensors
 omegaconf
 opencv-python
 pydantic
+triton
 compel
+peft>=0.15.0
