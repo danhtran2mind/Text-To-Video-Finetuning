@@ -884,14 +884,16 @@ def main(
 
     for epoch in range(first_epoch, num_train_epochs):
         train_loss = 0.0
-        
+        an = False
         for step, batch in enumerate(train_dataloader):
             # Skip steps until we reach the resumed step
             if resume_from_checkpoint and epoch == first_epoch and step < resume_step:
                 if step % gradient_accumulation_steps == 0:
                     progress_bar.update(1)
+                an = True
                 continue
-            print("Pass the Jumping steps, Pass the Jumping steps, Pass the Jumping steps")
+            if an:
+                print("Pass the Jumping steps, Pass the Jumping steps, Pass the Jumping steps")
             with accelerator.accumulate(unet) ,accelerator.accumulate(text_encoder):
 
                 text_prompt = batch['text_prompt'][0]
