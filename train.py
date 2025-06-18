@@ -846,7 +846,7 @@ def main(
                 if step % gradient_accumulation_steps == 0:
                     progress_bar.update(1)
                 continue
-            
+            print("Passed the Jumping Steps, Passed the Jumping Steps, Passed the Jumping Steps")
             with accelerator.accumulate(unet) ,accelerator.accumulate(text_encoder):
 
                 text_prompt = batch['text_prompt'][0]
