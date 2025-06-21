@@ -374,7 +374,7 @@ if __name__ == "__main__":
     if args.init_video is not None:
         out_name += f"[({Path(args.init_video).stem}) x {args.init_weight}] "
     prompt = re.sub(r'[<>:"/\\|?*\x00-\x1F]', "_", args.prompt) if platform.system() == "Windows" else args.prompt
-    out_name += f"{prompt}"
+    out_name += f"{prompt[:15}"
 
     args.prompt = [prompt] * args.batch_size
     if args.negative_prompt is not None:
