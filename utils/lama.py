@@ -20,6 +20,8 @@ import sys
 from urllib.request import urlretrieve
 
 import torch
+import pkg_resources
+from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from einops import rearrange
 from PIL import Image
 from torch import nn
@@ -320,7 +322,17 @@ def inpaint_watermark(imgs):
     mask = mask.expand(imgs.shape[0], 1, mask.shape[2], mask.shape[3])
 
     model = LargeMaskInpainting().to(imgs.device)
-    state_dict = torch.load(LAMA_PATH, map_location=imgs.device)["state_dict"]
+    
+    # Get PyTorch version
+    torch_version = pkg_resources.get_distribution("torch").version
+    
+    # Load checkpoint based on PyTorch version
+    if pkg_resources.parse_version(torch_version) >= pkg_resources.parse_version("2.6"):
+        torch.serialization.add_safe_globals([ModelCheckpoint])
+        state_dict = torch.load(LAMA_PATH, map_location=imgs.device, weights_only=True)["state_dict"]
+    else:
+        state_dict = torch.load(LAMA_PATH, map_location=imgs.device)["state_dict"]
+      
     g_dict = {k.replace("generator.", ""): v for k, v in state_dict.items() if k.startswith("generator")}
     model.load_state_dict(g_dict)
 
