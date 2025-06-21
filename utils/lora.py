@@ -493,11 +493,38 @@ def inject_inferable_lora(
 
     def is_text_model(f): return 'text_encoder' in f and isinstance(model.text_encoder, CLIPTextModel)
     def is_unet(f): return 'unet' in f and model.unet.__class__.__name__ == "UNet3DConditionModel"
-    print("lora_path: ", lora_path)
+    print("lora_path: ", lora_path, os.path.exists(lora_path))
     if os.path.exists(lora_path):
         try:
             for f in os.listdir(lora_path):
+                # endswith pt
                 if f.endswith('.pt'):
+                    lora_file = os.path.join(lora_path, f)
+
+                    if is_text_model(f):
+                        monkeypatch_or_replace_lora(
+                            model.text_encoder,
+                            torch.load(lora_file),
+                            target_replace_module=text_encoder_replace_modules,
+                            r=r
+                        )
+                        print("Successfully loaded Text Encoder LoRa.")
+                        continue
+
+                    if is_unet(f):
+                        monkeypatch_or_replace_lora_extended(
+                            model.unet,
+                            torch.load(lora_file),
+                            target_replace_module=unet_replace_modules,
+                            r=r
+                        )
+                        print("Successfully loaded UNET LoRa.")
+                        continue
+
+                    print("Found a .pt file, but doesn't have the correct name format. (unet.pt, text_encoder.pt)")
+                    
+                # endswith safetensors
+                elif f.endswith('.safetensors'):
                     lora_file = os.path.join(lora_path, f)
 
                     if is_text_model(f):
