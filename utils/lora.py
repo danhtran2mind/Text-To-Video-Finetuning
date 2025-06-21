@@ -500,6 +500,7 @@ def inject_inferable_lora(
         if not isinstance(loaded_data, dict):
             raise ValueError("Expected a dictionary from safetensors, got {}".format(type(loaded_data)))
         loras = []
+        print(sorted(loaded_data.keys()))
         for key in sorted(loaded_data.keys()):
             # if 'lora_up' in key or 'lora_down' in key:
                 # if isinstance(loaded_data[key], torch.Tensor):
@@ -507,7 +508,7 @@ def inject_inferable_lora(
                 # else:
                 #     raise ValueError("Expected tensor for key {}, got {}".format(key, type(loaded_data[key])))
         print("========================loras========================================")
-        print(loras)
+        print(sorted(loaded_data.keys()))
         if not loras:
             raise ValueError("No LoRA weights (lora_up or lora_down) found in safetensors file")
         return loras
