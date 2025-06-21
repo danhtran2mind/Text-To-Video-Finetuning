@@ -490,7 +490,9 @@ def inject_inferable_lora(
     ):    
     from transformers.models.clip import CLIPTextModel
     from diffusers import UNet3DConditionModel
-
+    # import os
+    # import os
+    from safetensors.torch import load_file as safetensors_load
     def is_text_model(f): return 'text_encoder' in f and isinstance(model.text_encoder, CLIPTextModel)
     def is_unet(f): return 'unet' in f and model.unet.__class__.__name__ == "UNet3DConditionModel"
     print("lora_path: ", lora_path, os.path.exists(lora_path))
@@ -525,8 +527,6 @@ def inject_inferable_lora(
                     
                 # endswith safetensors
                 elif f.endswith('.safetensors'):
-                    import os
-                    from safetensors.torch import load_file as safetensors_load
                     lora_file = os.path.join(lora_path, f)
 
                 if is_text_model(f):
