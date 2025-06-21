@@ -506,7 +506,7 @@ def inject_inferable_lora(
                     loras.append(loaded_data[key])
                 # else:
                 #     raise ValueError("Expected tensor for key {}, got {}".format(key, type(loaded_data[key])))
-        print("========================loras========================================)
+        print("========================loras========================================")
         print(loras)
         if not loras:
             raise ValueError("No LoRA weights (lora_up or lora_down) found in safetensors file")
