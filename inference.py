@@ -72,7 +72,7 @@ def initialize_pipeline(
     unet.disable_gradient_checkpointing()
     handle_memory_attention(xformers, sdp, unet)
     vae.enable_slicing()
-
+    print("Load inject_inferable_lora")
     inject_inferable_lora(pipe, lora_path, r=lora_rank)
 
     return pipe
