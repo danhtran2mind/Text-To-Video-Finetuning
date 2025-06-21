@@ -497,7 +497,7 @@ def inject_inferable_lora(
     def is_unet(f): return 'unet' in f and model.unet.__class__.__name__ == "UNet3DConditionModel"
     print("lora_path: ", lora_path, os.path.exists(lora_path))
     if os.path.exists(lora_path):
-        try:
+        # try:
             for f in os.listdir(lora_path):
                 # endswith pt
                 if f.endswith('.pt'):
@@ -551,9 +551,9 @@ def inject_inferable_lora(
     
                     print("Found a .safetensors file, but doesn't have the correct name format (e.g., unet.safetensors, text_encoder.safetensors).")
 
-        except Exception as e:
-            print(e)
-            print("Couldn't inject LoRA's due to an error.")
+        # except Exception as e:
+        #     print(e)
+        #     print("Couldn't inject LoRA's due to an error.")
 
 def extract_lora_ups_down(model, target_replace_module=DEFAULT_TARGET_REPLACE):
 
