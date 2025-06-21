@@ -496,64 +496,80 @@ def inject_inferable_lora(
     def is_text_model(f): return 'text_encoder' in f and isinstance(model.text_encoder, CLIPTextModel)
     def is_unet(f): return 'unet' in f and model.unet.__class__.__name__ == "UNet3DConditionModel"
     print("lora_path: ", lora_path, os.path.exists(lora_path))
+
+    def extract_lora_weights(loaded_data):
+        """Convert safetensors dictionary to a list of LoRA tensors."""
+        if not isinstance(loaded_data, dict):
+            raise ValueError("Expected a dictionary from safetensors, got {}".format(type(loaded_data)))
+        loras = []
+        for key in sorted(loaded_data.keys()):
+            if 'lora_up' in key or 'lora_down' in key:
+                if isinstance(loaded_data[key], torch.Tensor):
+                    loras.append(loaded_data[key])
+                else:
+                    raise ValueError("Expected tensor for key {}, got {}".format(key, type(loaded_data[key])))
+        if not loras:
+            raise ValueError("No LoRA weights (lora_up or lora_down) found in safetensors file")
+        return loras
+
     if os.path.exists(lora_path):
-        # try:
+        try:
             for f in os.listdir(lora_path):
-                # endswith pt
+                # endswith pt (unchanged, assuming it works)
                 if f.endswith('.pt'):
                     lora_file = os.path.join(lora_path, f)
-
+    
                     if is_text_model(f):
                         monkeypatch_or_replace_lora(
                             model.text_encoder,
-                            torch.load(lora_file),
+                            torch.load(lora_file, weights_only=False),
                             target_replace_module=text_encoder_replace_modules,
                             r=r
                         )
                         print("Successfully loaded Text Encoder LoRa.")
                         continue
-
+    
                     if is_unet(f):
                         monkeypatch_or_replace_lora_extended(
                             model.unet,
-                            torch.load(lora_file),
+                            torch.load(lora_file, weights_only=False),
                             target_replace_module=unet_replace_modules,
                             r=r
                         )
                         print("Successfully loaded UNET LoRa.")
                         continue
-
-                    print("Found a .pt file, but doesn't have the correct name format. (unet.pt, text_encoder.pt)")
+    
+                    print("Found a .pt file, but doesn't have the correct name format (e.g., unet.pt, text_encoder.pt).")
                     
                 # endswith safetensors
                 elif f.endswith('.safetensors'):
                     lora_file = os.path.join(lora_path, f)
-
+                    lora_weights = extract_lora_weights(safetensors_load(lora_file))  # Extract list of tensors
+    
                     if is_text_model(f):
                         monkeypatch_or_replace_lora(
                             model.text_encoder,
-                            safetensors_load(lora_file),  # Use safetensors loader
+                            lora_weights,  # Pass list of tensors
                             target_replace_module=text_encoder_replace_modules,
                             r=r
                         )
                         print("Successfully loaded Text Encoder LoRa.")
                         continue
-    
+        
                     if is_unet(f):
                         monkeypatch_or_replace_lora_extended(
                             model.unet,
-                            safetensors_load(lora_file),  # Use safetensors loader
+                            lora_weights,  # Pass list of tensors
                             target_replace_module=unet_replace_modules,
                             r=r
                         )
                         print("Successfully loaded UNET LoRa.")
                         continue
-    
+        
                     print("Found a .safetensors file, but doesn't have the correct name format (e.g., unet.safetensors, text_encoder.safetensors).")
-
-        # except Exception as e:
-        #     print(e)
-        #     print("Couldn't inject LoRA's due to an error.")
+    
+        except Exception as e:
+            print("Couldn't inject LoRA's due to an error: {}".format(str(e)))
 
 def extract_lora_ups_down(model, target_replace_module=DEFAULT_TARGET_REPLACE):
 
