@@ -490,8 +490,6 @@ def inject_inferable_lora(
     ):    
     from transformers.models.clip import CLIPTextModel
     from diffusers import UNet3DConditionModel
-    # import os
-    # import os
     from safetensors.torch import load_file as safetensors_load
     def is_text_model(f): return 'text_encoder' in f and isinstance(model.text_encoder, CLIPTextModel)
     def is_unet(f): return 'unet' in f and model.unet.__class__.__name__ == "UNet3DConditionModel"
@@ -504,10 +502,11 @@ def inject_inferable_lora(
         loras = []
         for key in sorted(loaded_data.keys()):
             if 'lora_up' in key or 'lora_down' in key:
-                if isinstance(loaded_data[key], torch.Tensor):
-                    loras.append(loaded_data[key])
-                else:
-                    raise ValueError("Expected tensor for key {}, got {}".format(key, type(loaded_data[key])))
+                # if isinstance(loaded_data[key], torch.Tensor):
+                #     loras.append(loaded_data[key])
+                # else:
+                #     raise ValueError("Expected tensor for key {}, got {}".format(key, type(loaded_data[key])))
+        print("=" * 10 + "loras" + "=" * 10)
         if not loras:
             raise ValueError("No LoRA weights (lora_up or lora_down) found in safetensors file")
         return loras
