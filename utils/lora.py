@@ -529,27 +529,27 @@ def inject_inferable_lora(
                 elif f.endswith('.safetensors'):
                     lora_file = os.path.join(lora_path, f)
 
-                if is_text_model(f):
-                    monkeypatch_or_replace_lora(
-                        model.text_encoder,
-                        safetensors_load(lora_file),  # Use safetensors loader
-                        target_replace_module=text_encoder_replace_modules,
-                        r=r
-                    )
-                    print("Successfully loaded Text Encoder LoRa.")
-                    continue
-
-                if is_unet(f):
-                    monkeypatch_or_replace_lora_extended(
-                        model.unet,
-                        safetensors_load(lora_file),  # Use safetensors loader
-                        target_replace_module=unet_replace_modules,
-                        r=r
-                    )
-                    print("Successfully loaded UNET LoRa.")
-                    continue
-
-                print("Found a .safetensors file, but doesn't have the correct name format (e.g., unet.safetensors, text_encoder.safetensors).")
+                    if is_text_model(f):
+                        monkeypatch_or_replace_lora(
+                            model.text_encoder,
+                            safetensors_load(lora_file),  # Use safetensors loader
+                            target_replace_module=text_encoder_replace_modules,
+                            r=r
+                        )
+                        print("Successfully loaded Text Encoder LoRa.")
+                        continue
+    
+                    if is_unet(f):
+                        monkeypatch_or_replace_lora_extended(
+                            model.unet,
+                            safetensors_load(lora_file),  # Use safetensors loader
+                            target_replace_module=unet_replace_modules,
+                            r=r
+                        )
+                        print("Successfully loaded UNET LoRa.")
+                        continue
+    
+                    print("Found a .safetensors file, but doesn't have the correct name format (e.g., unet.safetensors, text_encoder.safetensors).")
 
         except Exception as e:
             print(e)
