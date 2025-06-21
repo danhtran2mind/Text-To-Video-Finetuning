@@ -493,7 +493,7 @@ def inject_inferable_lora(
 
     def is_text_model(f): return 'text_encoder' in f and isinstance(model.text_encoder, CLIPTextModel)
     def is_unet(f): return 'unet' in f and model.unet.__class__.__name__ == "UNet3DConditionModel"
-
+    print("lora_path: ", lora_path)
     if os.path.exists(lora_path):
         try:
             for f in os.listdir(lora_path):
