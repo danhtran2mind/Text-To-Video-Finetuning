@@ -158,7 +158,7 @@ class LoraHandler(object):
             if lora_file is not None:
                 lora_loader_args.update({"lora_path": lora_file})
                 self.handle_lora_load(lora_file, lora_loader_args)
-                print(f"Success load LoRAs for {model.__class__.__name__}. Continuing...")
+                print(f"Successfully load LoRAs for {model.__class__.__name__}. Continuing...")
             else:
                 print(f"Could not load LoRAs for {model.__class__.__name__}. Injecting new ones instead...")
 
